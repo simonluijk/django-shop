@@ -275,9 +275,15 @@ class BaseCartItem(models.Model):
         self.line_total = Decimal('0.0')
         self.current_total = Decimal('0.0')  # Used by cart modifiers
 
+    def get_price(self):
+        """
+        Return the price for this item (provided for extensibility)
+        """
+        return self.product.get_price()
+
     def update(self, state):
         self.extra_price_fields = []  # Reset the price fields
-        self.line_subtotal = self.product.get_price() * self.quantity
+        self.line_subtotal = self.get_price() * self.quantity
         self.current_total = self.line_subtotal
 
         for modifier in cart_modifiers_pool.get_modifiers_list():
