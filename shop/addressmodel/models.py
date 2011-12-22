@@ -23,6 +23,7 @@ ADDRESS_TEMPLATE = getattr(settings, 'SHOP_ADDRESS_TEMPLATE',
 
 
 class Country(models.Model):
+    iso_alpha2 = models.CharField(unique=True, max_length=2)
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
@@ -69,3 +70,6 @@ class Address(models.Model):
             'state': self.state,
             'country': self.country,
         }
+
+    def get_country_code(self):
+        return self.country.iso_alpha2
