@@ -104,6 +104,7 @@ class OrderManager(models.Manager):
 
         # There, now move on to the order items.
         cart_items = CartItem.objects.filter(cart=cart)
+        for item in cart_items: item.cart = cart
         for item in cart_items:
             item.update(cart)
             i = OrderItem()
