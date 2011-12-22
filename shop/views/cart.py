@@ -103,12 +103,17 @@ class CartDetails(ShopTemplateResponseMixin, CartItemDetail):
     template_name = 'shop/cart.html'
     action = None
 
+    def get_initial_cart_state(self):
+        """
+        Hook to get the initial cart state
+        """
+        return {}
+
     def get_context_data(self, **kwargs):
         # There is no get_context_data on super(), we inherit from the mixin!
         ctx = {}
-        state = {}
         cart_object = get_or_create_cart(self.request)
-        cart_object.update(state)
+        cart_object.update(self.get_initial_cart_state())
         ctx.update({'cart': cart_object})
         ctx.update({'cart_items': cart_object.get_updated_cart_items()})
         return ctx

@@ -44,13 +44,19 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
         """
         return self._get_dynamic_form_class_from_factory()
 
+    def get_initial_cart_state(self):
+        """
+        Hook to get the initial cart state
+        """
+        return {}
+
     def create_order_object_from_cart(self):
         """
         This will create an Order object form the current cart, and will pass
         a reference to the Order on either the User object or the session.
         """
         cart = get_or_create_cart(self.request)
-        cart.update()
+        cart.update(self.get_initial_cart_state())
         order = Order.objects.create_from_cart(cart)
         request = self.request
         add_order_to_request(request, order)
