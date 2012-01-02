@@ -275,6 +275,12 @@ class BaseCartItem(models.Model):
         self.line_total = Decimal('0.0')
         self.current_total = Decimal('0.0')  # Used by cart modifiers
 
+    def get_name(self):
+        """
+        Return the product name for this item (provided for extensibility)
+        """
+        return self.product.get_name()
+
     def get_price(self):
         """
         Return the price for this item (provided for extensibility)
