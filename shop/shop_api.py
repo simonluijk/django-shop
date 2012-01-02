@@ -52,6 +52,10 @@ class ShopAPI(object):
         """The total amount to be charged for passed order"""
         return order.order_total
 
+    def get_order_currency(self, order):
+        """The currency for passed order"""
+        return order.currency
+
     def get_order_subtotal(self, order):
         """The total amount to be charged for passed order"""
         return order.order_subtotal
