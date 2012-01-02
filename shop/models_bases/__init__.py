@@ -191,7 +191,8 @@ class BaseCart(models.Model):
 
         # This is a ghetto "select_related" for polymorphic models.
         items = CartItem.objects.filter(cart=self)
-        for item in items: item.cart = self
+        for item in items:
+            item.cart = self
         product_ids = [item.product_id for item in items]
         products = Product.objects.filter(id__in=product_ids)
         products_dict = dict([(p.id, p) for p in products])
