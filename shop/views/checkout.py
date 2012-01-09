@@ -219,7 +219,7 @@ class ThankYouView(LoginMixin, ShopTemplateView):
 
         # Set the order status:
         order = get_order_from_request(self.request)
-        if order:
+        if order and order.is_payed():
             order.status = Order.COMPLETED
             order.save()
             completed.send(sender=self, order=order)
