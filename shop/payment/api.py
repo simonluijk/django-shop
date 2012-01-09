@@ -5,8 +5,9 @@ This file defines the interafces one should implement when either creating a
 new payment module or willing to use modules with another shop system.
 """
 from decimal import Decimal
-from shop.models.ordermodel import OrderPayment
+from shop.models.ordermodel import Order, OrderPayment
 from shop.shop_api import ShopAPI
+from shop.order_signals import completed
 from django.core.urlresolvers import reverse
 
 
@@ -42,6 +43,16 @@ class PaymentAPI(ShopAPI):
             transaction_id=transaction_id,
             payment_method=payment_method)
         # Save is not used in the particular case.
+
+    def mark_order_complete(self, order):
+        """
+        Marks the order complete and sends the appreate signal. At the moment
+        this is done by hand in ThankYouView but in paypal's case the only way
+        to guarantee an order is marked complete is todo it when IPN is received.
+        """
+        order.status = Order.COMPLETED
+        order.save()
+        completed.send(sender=self, order=order)
 
     #==========================================================================
     # URLS
