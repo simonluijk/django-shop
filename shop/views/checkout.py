@@ -19,6 +19,7 @@ from shop.util.cart import get_or_create_cart
 from shop.util.order import add_order_to_request, get_order_from_request
 from shop.views import ShopTemplateView, ShopView
 from shop.util.login_mixin import LoginMixin
+from shop.payment.api import PaymentAPI
 
 
 class CheckoutSelectionView(LoginMixin, ShopTemplateView):
@@ -211,29 +212,41 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
         return ctx
 
 
+payment_api = PaymentAPI()
+
+
 class ThankYouView(LoginMixin, ShopTemplateView):
     template_name = 'shop/checkout/thank_you.html'
 
     def get_context_data(self, **kwargs):
         ctx = super(ShopTemplateView, self).get_context_data(**kwargs)
 
-        # Set the order status:
         order = get_order_from_request(self.request)
-        if order and order.is_payed():
+        if not order or not order.is_payed():
+            return ctx
+
+        # Set the order status if not already set
+        if order.status < Order.COMPLETED:
             order.status = Order.COMPLETED
             order.save()
             completed.send(sender=self, order=order)
-        else:
-            order = Order.objects.get_latest_for_user(self.request.user)
-            #TODO: Is this ever the case?
-        ctx.update({'order': order, })
+
+        ctx.update({'order': order})
+        return ctx
+
+    def get(self, request, *args, **kwargs):
+        ctx = self.get_context_data(**kwargs)
+        order = ctx.get('order', None)
+
+        if not order:
+            return HttpResponseRedirect(payment_api.get_cancel_url())
 
         # Empty the customers basket, to reflect that the purchase was
         # completed
         cart_object = get_or_create_cart(self.request)
         cart_object.empty()
 
-        return ctx
+        return self.render_to_response(ctx)
 
 
 class ShippingBackendRedirectView(LoginMixin, ShopView):

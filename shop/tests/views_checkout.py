@@ -234,11 +234,16 @@ class ThankYouViewTestCase(TestCase):
                                         email="test@example.com",
                                         first_name="Test",
                                         last_name="Toto")
+        self.user.set_password("test")
+        self.user.save()
         self.request = Mock()
         setattr(self.request, 'user', self.user)
         setattr(self.request, 'session', {})
         setattr(self.request, 'method', 'GET')
         self.order = Order.objects.create(user=self.user)
+        self.order.order_total = Decimal('1')
+        self.order.save()
+        self.order.orderpayment_set.create(amount=Decimal('1'))
 
     def test_get_context_gives_correct_order(self):
         view = ThankYouView(request=self.request)
@@ -251,3 +256,23 @@ class ThankYouViewTestCase(TestCase):
         ctx_order = res.get('order', None)
         self.assertNotEqual(ctx_order, None)
         self.assertEqual(ctx_order, self.order)
+
+    def test_only_paid_orders_are_marked_complete(self):
+        view = ThankYouView(request=self.request)
+        res = view.get_context_data()
+        ctx_order1 = res.get('order', None)
+        self.assertNotEqual(ctx_order1, None)
+        self.order2 = Order.objects.create(user=self.user)
+        res = view.get_context_data()
+        ctx_order2 = res.get('order', None)
+        self.assertEqual(ctx_order2, None)
+
+    def test_redirects_on_unpaid_order(self):
+        login_successful = self.client.login(username="test", password="test")
+        self.assertTrue(login_successful)
+        resp = self.client.get(reverse('thank_you_for_your_order'))
+        self.assertEqual(resp.status_code, 200)
+        self.order2 = Order.objects.create(user=self.user)
+        resp = self.client.get(reverse('thank_you_for_your_order'))
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue('shop/checkout/pay/' in resp._headers['location'][1])
