@@ -216,6 +216,9 @@ class BaseCart(models.Model):
             item.product = products_dict[item.product_id]
             self.subtotal_price = self.subtotal_price + item.update(state)
 
+        # Cache updated cart items
+        self._updated_cart_items = items
+
         self.current_total = self.subtotal_price
         # Now we have to iterate over the registered modifiers again
         # (unfortunately) to pass them the whole Order this time
@@ -229,9 +232,6 @@ class BaseCart(models.Model):
         # it is displayed
         for modifier in cart_modifiers_pool.get_modifiers_list():
             modifier.post_process_cart(self, state)
-
-        # Cache updated cart items
-        self._updated_cart_items = items
 
     def empty(self):
         """
