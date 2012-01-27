@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from django.conf import settings
 from shop.models.ordermodel import OrderExtraInfo, Order
 from shop.util.order import get_order_from_request
 
@@ -65,6 +66,9 @@ class ShopAPI(object):
         A short name for the order, to be displayed on the payment processor's
         website. Should be human-readable, as much as possible
         """
+        name = getattr(settings, 'SHOP_ORDER_SHORT_NAME', None)
+        if name:
+            return name
         return "%s-%s" % (order.id, order.order_total)
 
     def get_order_unique_id(self, order):
