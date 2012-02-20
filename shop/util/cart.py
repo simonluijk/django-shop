@@ -9,28 +9,50 @@ def get_or_create_cart(request):
     matching cart and return it or create a new one bound to the user (if one
     exists), or to the session.
     """
-    cart = None
+
     if not hasattr(request, '_cart'):
+        session = getattr(request, 'session', None)
+        session_cart = None
+        if session != None:
+            try:
+                session_cart = Cart.objects.get(pk=session['cart_id'])
+            except (Cart.DoesNotExist, KeyError):
+                pass
+
+        user = None
+        user_cart = None
         if request.user and not isinstance(request.user, AnonymousUser):
-            # There is a logged in user
-            cart = Cart.objects.filter(user=request.user)  # a list
-            if not cart:  # if list is empty
-                cart = Cart.objects.create(user=request.user)
+            user = request.user
+            try:
+                user_cart = Cart.objects.get(user=user)
+            except (Cart.DoesNotExist):
+                pass
+
+        cart = None
+        if session_cart and user_cart and session_cart != user_cart:
+            # NOTE: Overwrite user cart if session cart has items
+            if len(session_cart.items.all()) >= 1:
+                user_cart.delete()
+                cart = session_cart
+                cart.user = user
+                cart.save()
             else:
-                cart = cart[0]  # Get the first one from the list
-        else:
-            session = getattr(request, 'session', None)
+                session['cart_id'] = user_cart.id
+                cart = user_cart
+        elif user_cart:
+            cart = user_cart
+        elif session_cart:
+            cart = session_cart
+
+        # NOTE: Create cart if non found
+        if not cart:
+            cart = Cart()
+            if user != None:
+                cart.user = user
+            cart.save()
             if session != None:
-                # There is a session
-                cart_id = session.get('cart_id')
-                if cart_id:
-                    try:
-                        cart = Cart.objects.get(pk=cart_id)
-                    except Cart.DoesNotExist:
-                        cart = None
-                if not cart:
-                    cart = Cart.objects.create()
-                    session['cart_id'] = cart.id
+                session['cart_id'] = cart.id
+
         setattr(request, '_cart', cart)
-    cart = getattr(request, '_cart')  # There we *must* have a cart
-    return cart
+
+    return getattr(request, '_cart')
