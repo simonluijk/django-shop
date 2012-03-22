@@ -43,7 +43,7 @@ class Address(models.Model):
     name = models.CharField(_('Full name'), max_length=255)
     address = models.CharField(_('Address'), max_length=255)
     address2 = models.CharField(_('Address2'), max_length=255, blank=True)
-    city = models.CharField(_('City'), max_length=255)
+    city = models.CharField(_('City/Town'), max_length=255)
     zip_code = models.CharField(_('Zip/Post Code'), max_length=20)
     state = models.CharField(_('State/County'), max_length=255, blank=True)
     country = models.ForeignKey(Country, verbose_name=_('Country'))

@@ -60,7 +60,7 @@ msgid "Zip/Post Code"
 msgstr "Code Postal"
 
 #: addressmodel/models.py:45
-msgid "City"
+msgid "City/Town"
 msgstr "Ville"
 
 #: addressmodel/models.py:46
