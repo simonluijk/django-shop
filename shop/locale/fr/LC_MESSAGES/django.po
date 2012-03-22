@@ -56,7 +56,7 @@ msgid "Address2"
 msgstr "Adresse2"
 
 #: addressmodel/models.py:44
-msgid "Zip Code"
+msgid "Zip/Post Code"
 msgstr "Code Postal"
 
 #: addressmodel/models.py:45
@@ -64,7 +64,7 @@ msgid "City"
 msgstr "Ville"
 
 #: addressmodel/models.py:46
-msgid "State"
+msgid "State/County"
 msgstr "Région"
 
 #: addressmodel/models.py:52
