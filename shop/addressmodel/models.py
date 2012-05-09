@@ -25,6 +25,7 @@ ADDRESS_TEMPLATE = getattr(settings, 'SHOP_ADDRESS_TEMPLATE',
 class Country(models.Model):
     iso_alpha2 = models.CharField(unique=True, max_length=2)
     name = models.CharField(max_length=255)
+    common = models.BooleanField(_(u'Common'), default=False)
 
     def __unicode__(self):
         return u'%s' % self.name
