@@ -31,6 +31,7 @@ class Country(models.Model):
         return u'%s' % self.name
 
     class Meta(object):
+        ordering = ('name',)
         verbose_name = _('Country')
         verbose_name_plural = _('Countries')
 
