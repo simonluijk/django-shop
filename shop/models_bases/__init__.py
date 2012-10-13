@@ -328,6 +328,16 @@ class BaseOrder(models.Model):
         (CANCELLED, _('Cancelled')),
     )
 
+    order_field = 'pk'
+
+    def _get_order_id(self):
+        return getattr(self, self.order_field)
+
+    def _set_order_id(self, value):
+        return setattr(self, self.order_field, value)
+
+    order_id = property(_get_order_id, _set_order_id)
+
     # If the user is null, the order was created with a session
     user = models.ForeignKey(User, blank=True, null=True,
             verbose_name=_('User'))

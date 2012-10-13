@@ -274,7 +274,7 @@ class ThankYouViewTestCase(TestCase):
         res = view.get_context_data()
         self.assertNotEqual(res, None)
         # refresh self.order from db (it was saved in the view)
-        self.order = Order.objects.get(pk=self.order.pk)
+        self.order = Order.objects.get(order_id=self.order.order_id)
         self.assertEqual(self.order.status, Order.COMPLETED)
         ctx_order = res.get('order', None)
         self.assertNotEqual(ctx_order, None)

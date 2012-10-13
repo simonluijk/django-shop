@@ -25,7 +25,7 @@ def get_order_from_request(request):
             order_id = session.get('order_id')
             if order_id:
                 try:
-                    order = Order.objects.get(pk=order_id)
+                    order = Order.objects.get(order_id=order_id)
                 except Order.DoesNotExist:
                     return None
     return order

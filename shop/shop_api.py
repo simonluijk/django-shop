@@ -79,4 +79,4 @@ class ShopAPI(object):
         paypal ipn), with an attached "invoice ID" or "order ID", which should
         then be used to get the shop's order with this method.
         """
-        return Order.objects.get(pk=id)
+        return Order.objects.get(order_id=id)

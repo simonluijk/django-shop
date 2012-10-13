@@ -56,6 +56,14 @@ class ProductManager(PolymorphicManager):
 #==============================================================================
 
 class OrderManager(models.Manager):
+    def get(self, *args, **kwargs):
+        try:
+            order_id = kwargs['order_id']
+            del kwargs['order_id']
+            kwargs[self.model.order_field] = order_id
+        except KeyError:
+            pass
+        return super(OrderManager, self).get(*args, **kwargs)
 
     def get_latest_for_user(self, user):
         """
