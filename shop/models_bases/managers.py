@@ -55,15 +55,31 @@ class ProductManager(PolymorphicManager):
 # Order
 #==============================================================================
 
-class OrderManager(models.Manager):
+def _update_qs_kwargs(kwargs, order_field):
+    try:
+        order_id = kwargs['order_id']
+        del kwargs['order_id']
+        kwargs[order_field] = order_id
+    except KeyError:
+        pass
+    return kwargs
+
+
+class OrderQuerySet(models.query.QuerySet):
+
     def get(self, *args, **kwargs):
-        try:
-            order_id = kwargs['order_id']
-            del kwargs['order_id']
-            kwargs[self.model.order_field] = order_id
-        except KeyError:
-            pass
-        return super(OrderManager, self).get(*args, **kwargs)
+        kwargs = _update_qs_kwargs(kwargs, self.model.order_field)
+        return super(OrderQuerySet, self).get(*args, **kwargs)
+
+    def filter(self, *args, **kwargs):
+        kwargs = _update_qs_kwargs(kwargs, self.model.order_field)
+        return super(OrderQuerySet, self).filter(*args, **kwargs)
+
+
+class OrderManager(models.Manager):
+
+    def get_query_set(self):
+        return OrderQuerySet(self.model)
 
     def get_latest_for_user(self, user):
         """
