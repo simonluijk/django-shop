@@ -229,7 +229,7 @@ class OrderListViewTestCase(TestCase):
 
     def test_authenticated_user_see_order_detail(self):
         self.client.login(username='test', password='test')
-        url = reverse('order_detail', kwargs={'pk': self.order.id})
+        url = reverse('order_detail', kwargs={'order_id': self.order.order_id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, unicode(self.order))
